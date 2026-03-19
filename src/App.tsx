@@ -713,7 +713,7 @@ function ProfileView({ orders, favorites, onLogout, onClose, onRemoveFavorite, s
   const [reviewingProduct, setReviewingProduct] = useState<any>(null);
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
-  const [submittedReviews, setSubmittedReviews] = useState<Record<number, { rating: number, text: string }>>({});
+  const [submittedReviews, setSubmittedReviews] = useState({});
 
   const deliveredProducts = orders
     .filter((o: any) => o.status === 'Доставлен')
