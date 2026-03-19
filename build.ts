@@ -88,6 +88,7 @@ const html = `<!DOCTYPE html>
         // Глобальный перехватчик ошибок
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             const display = document.getElementById('error-display');
+            if (!display) return;
             display.style.display = 'block';
             let content = '<h1>Runtime Error</h1>';
             content += '<pre>' + msg + '\\n\\nLocation: ' + url + ':' + lineNo + ':' + columnNo;
@@ -103,27 +104,58 @@ const html = `<!DOCTYPE html>
             display.innerHTML = content;
             return false;
         };
+
+        // Эмуляция окружения Node.js для браузера
+        window.process = { env: { NODE_ENV: 'production' } };
     </script>
 
-    <script type="text/babel" data-presets="react,typescript,env">
+    <script type="text/babel" data-presets="react,typescript">
         const { useState, useRef, useEffect, useMemo, useCallback, StrictMode } = React;
         
         // Библиотеки из глобального контекста
-        const motion = window.Motion?.motion || window.FramerMotion?.motion || {};
-        const AnimatePresence = window.Motion?.AnimatePresence || window.FramerMotion?.AnimatePresence;
+        const motion = (window.Motion && window.Motion.motion) || (window.FramerMotion && window.FramerMotion.motion) || {};
+        const AnimatePresence = (window.Motion && window.Motion.AnimatePresence) || (window.FramerMotion && window.FramerMotion.AnimatePresence);
         
         const LucideIcons = window.LucideReact || {};
-        const { 
-            Search, ShoppingBag, User, X, Heart, ChevronRight, CreditCard, 
-            Apple, Star, TrendingUp, LogOut, Package, Settings, Bell, Shield, 
-            MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2,
-            ChevronLeft, ExternalLink, Filter, Menu, Plus, Minus, Check
-        } = LucideIcons;
+        
+        // Проверка наличия иконок
+        const getIcon = (name) => LucideIcons[name] || (() => <span title={name}>[Icon]</span>);
+
+        const Search = getIcon('Search');
+        const ShoppingBag = getIcon('ShoppingBag');
+        const User = getIcon('User');
+        const X = getIcon('X');
+        const Heart = getIcon('Heart');
+        const ChevronRight = getIcon('ChevronRight');
+        const CreditCard = getIcon('CreditCard');
+        const Apple = getIcon('Apple');
+        const Star = getIcon('Star');
+        const TrendingUp = getIcon('TrendingUp');
+        const LogOut = getIcon('LogOut');
+        const Package = getIcon('Package');
+        const Settings = getIcon('Settings');
+        const Bell = getIcon('Bell');
+        const Shield = getIcon('Shield');
+        const MapPin = getIcon('MapPin');
+        const CheckCircle = getIcon('CheckCircle');
+        const Loader2 = getIcon('Loader2');
+        const Trash2 = getIcon('Trash2');
+        const ArrowLeft = getIcon('ArrowLeft');
+        const Info = getIcon('Info');
+        const Tag = getIcon('Tag');
+        const Share2 = getIcon('Share2');
+        const ChevronLeft = getIcon('ChevronLeft');
+        const ExternalLink = getIcon('ExternalLink');
+        const Filter = getIcon('Filter');
+        const Menu = getIcon('Menu');
+        const Plus = getIcon('Plus');
+        const Minus = getIcon('Minus');
+        const Check = getIcon('Check');
 
         // Утилита cn
         const cn = (...inputs) => {
-            const twMerge = window.tailwindMerge?.twMerge;
-            const clsx = window.clsx?.clsx || window.clsx;
+            const twMerge = window.tailwindMerge && window.tailwindMerge.twMerge;
+            const clsx = window.clsx && (window.clsx.clsx || window.clsx);
             if (twMerge && clsx) {
                 return twMerge(clsx(inputs));
             }
@@ -144,8 +176,10 @@ const html = `<!DOCTYPE html>
         } catch (err) {
             console.error("Initialization failed:", err);
             const display = document.getElementById('error-display');
-            display.style.display = 'block';
-            display.innerHTML = '<h1>Initialization Error</h1><pre>' + err.stack + '</pre>';
+            if (display) {
+                display.style.display = 'block';
+                display.innerHTML = '<h1>Initialization Error</h1><pre>' + err.stack + '</pre>';
+            }
         }
     </script>
 </body>
