@@ -25,15 +25,15 @@
         }
     </script>
     
-    <!-- React & Dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
-    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
-    <script src="https://unpkg.com/clsx@2.1.1/dist/clsx.min.js"></script>
-    <script src="https://unpkg.com/tailwind-merge@2.3.0/dist/bundle-client.umd.js"></script>
+    <!-- React & Dependencies (Using crossorigin to avoid "Script error") -->
+    <script src="https://unpkg.com/react@19/umd/react.production.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@19/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/clsx@2.1.1/dist/clsx.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/tailwind-merge@2.3.0/dist/bundle-client.umd.js" crossorigin="anonymous"></script>
 
     <style>
         @layer base {
@@ -64,16 +64,26 @@
     </div>
 
     <script>
-        // Обработка ошибок для отладки на GitHub Pages
+        // Обработка ошибок
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             const display = document.getElementById('error-display');
             display.style.display = 'block';
-            display.innerHTML = '<h1>Ошибка выполнения:</h1><pre>' + msg + '\nat ' + url + ':' + lineNo + ':' + columnNo + '</pre>';
+            let errorMsg = '<h1>Ошибка выполнения:</h1><pre>' + msg + '\nat ' + url + ':' + lineNo + ':' + columnNo;
+            if (error && error.stack) {
+                errorMsg += '\n\nStack:\n' + error.stack;
+            }
+            errorMsg += '</pre>';
+            
+            if (msg.indexOf('Script error') > -1) {
+                errorMsg += '<p style="color: black"><b>Подсказка:</b> Это внешняя ошибка (CORS). Проверьте консоль браузера (F12) для деталей.</p>';
+            }
+            
+            display.innerHTML = errorMsg;
             return false;
         };
     </script>
 
-    <script type="text/babel">
+    <script type="text/babel" data-presets="react">
         const { useState, useRef, useEffect, useMemo, useCallback, StrictMode } = React;
         
         // Глобальные переменные для библиотек
@@ -87,7 +97,7 @@
             MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2
         } = LucideIcons;
 
-        // Эмуляция функции cn (из lib/utils)
+        // Эмуляция функции cn
         const cn = (...inputs) => {
             if (typeof tailwindMerge !== 'undefined' && typeof clsx !== 'undefined') {
                 return tailwindMerge.twMerge(clsx.clsx(inputs));
@@ -95,7 +105,7 @@
             return inputs.filter(Boolean).join(' ');
         };
 
-        // --- APP LOGIC (From App.tsx) ---
+        // --- APP LOGIC ---
         const CITIES = [
   'Абакан', 'Альметьевск', 'Ангарск', 'Арзамас', 'Армавир', 'Артём', 'Архангельск', 'Астрахань', 'Ачинск',
   'Балаково', 'Балашиха', 'Барнаул', 'Батайск', 'Белгород', 'Бердск', 'Березники', 'Бийск', 'Благовещенск', 'Братск', 'Брянск',
@@ -1701,7 +1711,7 @@ function App() {
   );
 }
 
-        // Рендеринг приложения
+        // Рендеринг
         try {
             const root = ReactDOM.createRoot(document.getElementById('root'));
             root.render(
