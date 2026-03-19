@@ -1,0 +1,1613 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Search, ShoppingBag, User, X, Heart, ChevronRight, CreditCard, 
+  Apple, Star, TrendingUp, LogOut, Package, Settings, Bell, Shield, 
+  MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { cn } from './lib/utils';
+
+const CITIES = [
+  'Абакан', 'Альметьевск', 'Ангарск', 'Арзамас', 'Армавир', 'Артём', 'Архангельск', 'Астрахань', 'Ачинск',
+  'Балаково', 'Балашиха', 'Барнаул', 'Батайск', 'Белгород', 'Бердск', 'Березники', 'Бийск', 'Благовещенск', 'Братск', 'Брянск',
+  'Великий Новгород', 'Владивосток', 'Владикавказ', 'Владимир', 'Волгоград', 'Волгодонск', 'Волжский', 'Вологда', 'Воронеж',
+  'Грозный', 'Дербент', 'Дзержинск', 'Димитровград', 'Домодедово', 'Евпатория', 'Екатеринбург', 'Елец', 'Ессентуки',
+  'Железноводск', 'Жуковский', 'Златоуст', 'Иваново', 'Ижевск', 'Иркутск', 'Йошкар-Ола',
+  'Казань', 'Калининград', 'Калуга', 'Каменск-Уральский', 'Камышин', 'Каспийск', 'Кемерово', 'Керчь', 'Киров', 'Кисловодск', 'Ковров', 'Коломна', 'Комсомольск-на-Амуре', 'Копейск', 'Королёв', 'Кострома', 'Красногорск', 'Краснодар', 'Красноярск', 'Курган', 'Курск', 'Кызыл',
+  'Липецк', 'Люберцы', 'Магадан', 'Магнитогорск', 'Майкоп', 'Махачкала', 'Миасс', 'Москва', 'Мурманск', 'Муром', 'Мытищи',
+  'Набережные Челны', 'Назрань', 'Нальчик', 'Находка', 'Невинномысск', 'Нефтекамск', 'Нефтеюганск', 'Нижневартовск', 'Нижнекамск', 'Нижний Новгород', 'Нижний Тагил', 'Новокузнецк', 'Новокуйбышевск', 'Новомосковск', 'Новороссийск', 'Новосибирск', 'Новочебоксарск', 'Новочеркасск', 'Новошахтинск', 'Новый Уренгой', 'Ногинск', 'Норильск', 'Ноябрьск',
+  'Обнинск', 'Одинцово', 'Октябрьский', 'Омск', 'Орёл', 'Оренбург', 'Орехово-Зуево', 'Орск',
+  'Пенза', 'Первоуральск', 'Пермь', 'Петрозаводск', 'Петропавловск-Камчатский', 'Подольск', 'Прокопьевск', 'Псков', 'Пушкино', 'Пятигорск',
+  'Раменское', 'Ростов-на-Дону', 'Рубцовск', 'Рыбинск', 'Рязань',
+  'Салават', 'Самара', 'Санкт-Петербург', 'Саранск', 'Саратов', 'Севастополь', 'Северодвинск', 'Северск', 'Сергиев Посад', 'Серпухов', 'Симферополь', 'Смоленск', 'Сочи', 'Ставрополь', 'Старый Оскол', 'Стерлитамак', 'Сургут', 'Сызрань', 'Сыктывкар',
+  'Таганрог', 'Тамбов', 'Тверь', 'Тольятти', 'Томск', 'Тула', 'Тюмень',
+  'Улан-Удэ', 'Ульяновск', 'Уссурийск', 'Уфа', 'Хабаровск', 'Хасавюрт', 'Химки',
+  'Чебоксары', 'Челябинск', 'Черемхово', 'Череповец', 'Черкесск', 'Чита',
+  'Шахты', 'Щёлково', 'Электросталь', 'Элиста', 'Энгельс', 'Южно-Сахалинск', 'Якутск', 'Ярославль'
+];
+
+const CATEGORIES = [
+  { id: 1, name: 'Все' },
+  { id: 2, name: 'Футболки' },
+  { id: 3, name: 'Худи & Свитшоты' },
+  { id: 4, name: 'Штаны & Шорты' },
+  { id: 5, name: 'Аксессуары' },
+];
+
+const HERO_SLIDES = [
+  {
+    id: 1,
+    title: "НОВАЯ КОЛЛЕКЦИЯ.",
+    subtitle: "Эксклюзивный дроп. Лимитированный тираж.",
+    image: "https://images.unsplash.com/photo-1523398002811-999aa8e9f5b9?w=1600&q=80"
+  }
+];
+
+const PRODUCTS = [
+  { 
+    id: 1, name: 'Оверсайз Футболка "VOID"', category: 'Футболки', price: 3500, oldPrice: 4200, rating: 4.9, reviews: 128, 
+    image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'
+    ],
+    isNew: true,
+    description: 'Базовая оверсайз футболка из плотного хлопка. Минималистичный принт на груди, спущенный рукав. Идеальная посадка для стритвир лука.',
+    history: [4200, 4000, 3800, 3900, 3500, 3500],
+    characteristics: [
+      { name: 'Состав', value: '100% хлопок' },
+      { name: 'Плотность', value: '240 г/м²' },
+      { name: 'Крой', value: 'Oversize' },
+      { name: 'Принт', value: 'Шелкография' }
+    ]
+  },
+  { 
+    id: 2, name: 'Худи "ACID WASH"', category: 'Худи & Свитшоты', price: 6900, oldPrice: 8500, rating: 4.9, reviews: 84, 
+    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80',
+      'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=800&q=80'
+    ],
+    description: 'Плотное худи с эффектом варки (acid wash). Объемный капюшон, карман-кенгуру, вышивка логотипа на рукаве.',
+    history: [8500, 84000, 8200, 7500, 7000, 6900],
+    characteristics: [
+      { name: 'Состав', value: '80% хлопок, 20% полиэстер' },
+      { name: 'Плотность', value: '380 г/м²' },
+      { name: 'Обработка', value: 'Acid Wash' },
+      { name: 'Крой', value: 'Boxy fit' }
+    ]
+  },
+  { 
+    id: 3, name: 'Карго Штаны "TACTICAL"', category: 'Штаны & Шорты', price: 5800, oldPrice: 6500, rating: 4.7, reviews: 32, 
+    image: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&q=80',
+      'https://images.unsplash.com/photo-1517438476312-10d79c077509?w=800&q=80'
+    ],
+    description: 'Широкие карго штаны из прочного рипстопа. Множество карманов, утяжки снизу для регулировки ширины штанины.',
+    history: [6500, 6400, 6000, 5900, 5800, 5800],
+    characteristics: [
+      { name: 'Материал', value: 'Рипстоп (хлопок/нейлон)' },
+      { name: 'Карманы', value: '6 штук' },
+      { name: 'Крой', value: 'Wide leg' }
+    ]
+  },
+  { 
+    id: 4, name: 'Шапка-бини "BASIC"', category: 'Аксессуары', price: 1500, oldPrice: 2000, rating: 4.8, reviews: 210, 
+    image: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=800&q=80'
+    ],
+    isNew: true,
+    description: 'Классическая шапка-бини в рубчик. Мягкая пряжа, не колется, отлично тянется и сохраняет форму.',
+    history: [2000, 1800, 1500, 1500, 1500, 1500],
+    characteristics: [
+      { name: 'Состав', value: '50% шерсть, 50% акрил' },
+      { name: 'Размер', value: 'One size' },
+      { name: 'Сезон', value: 'Осень/Зима' }
+    ]
+  },
+  { 
+    id: 5, name: 'Зип-худи "CYBER"', category: 'Худи & Свитшоты', price: 7200, oldPrice: 8500, rating: 4.8, reviews: 156, 
+    image: 'https://images.unsplash.com/photo-1611312449408-fcece27cdbb1?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1611312449408-fcece27cdbb1?w=800&q=80'
+    ],
+    description: 'Худи на молнии с металлическим логотипом. Двойной капюшон, надежная металлическая фурнитура YKK.',
+    history: [8500, 8000, 7500, 7200, 7200, 7200],
+    characteristics: [
+      { name: 'Состав', value: '100% хлопок' },
+      { name: 'Фурнитура', value: 'YKK' },
+      { name: 'Крой', value: 'Relaxed' }
+    ]
+  },
+  { 
+    id: 6, name: 'Шоппер "NOISE"', category: 'Аксессуары', price: 2100, oldPrice: 2500, rating: 4.9, reviews: 340, 
+    image: 'https://images.unsplash.com/photo-1597444319692-7f9859f518e3?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1597444319692-7f9859f518e3?w=800&q=80'
+    ],
+    description: 'Вместительный шоппер из плотного канваса. Внутри дополнительный карман для мелочей. Выдерживает до 15 кг.',
+    history: [2500, 2300, 2100, 2100, 2100, 2100],
+    characteristics: [
+      { name: 'Материал', value: 'Канвас (100% хлопок)' },
+      { name: 'Плотность', value: '320 г/м²' },
+      { name: 'Размер', value: '40x45 см' }
+    ]
+  }
+];
+
+function ToastContainer({ toasts }: { toasts: any[] }) {
+  return (
+    <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-[100] flex flex-col items-center sm:items-end gap-3 pointer-events-none">
+      <AnimatePresence>
+        {toasts.map(toast => (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+            className="bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm rounded-none p-4 flex items-center gap-3 pointer-events-auto w-full sm:w-auto max-w-sm"
+          >
+            {toast.type === 'success' ? <CheckCircle className="text-black dark:text-white" size={20} /> : <Info className="text-black dark:text-white" size={20} />}
+            <span className="text-sm font-black uppercase tracking-tighter text-black dark:text-white">{toast.message}</span>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function DynamicIsland({ city, onOpenCity, onOpenCart, onOpenAuth, onOpenProfile, isLoggedIn, cartCount, onNavigate, searchQuery, setSearchQuery }: any) {
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <motion.div 
+        layout
+        className="bg-black/80 dark:bg-[#1C1C1E]/80 pointer-events-auto backdrop-blur-3xl shadow-[0_16px_40px_rgba(0,0,0,0.2)] rounded-none flex items-center p-2 text-white overflow-hidden border border-white/10 ring-1 ring-white/5"
+        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      >
+        <div className="font-black uppercase tracking-tighter text-xl cursor-pointer px-4" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('home'); }}>HYPE</div>
+        
+        <button onClick={onOpenCity} className="ml-3 flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-white/10 hover:bg-white/20 transition-colors text-xs font-bold uppercase tracking-wider whitespace-nowrap">
+          <MapPin size={14} />
+          <span className="hidden sm:inline">{city || 'Укажите город'}</span>
+        </button>
+
+        <motion.div 
+          layout className="flex items-center bg-white/10 rounded-none px-3 py-2 mx-2 cursor-text hover:bg-white/20 transition-colors"
+          onClick={() => { setIsSearchExpanded(true); setTimeout(() => inputRef.current?.focus(), 50); }}
+        >
+          <Search size={16} className="text-white/70 shrink-0" />
+          <motion.input 
+            ref={inputRef} layout type="text" placeholder="Поиск..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={cn("bg-transparent outline-none text-sm text-white placeholder:text-white/50 ml-2 transition-all duration-300 font-bold uppercase tracking-wider", isSearchExpanded || searchQuery ? "w-32 sm:w-64" : "w-10 sm:w-24 cursor-pointer")}
+            onBlur={() => { if (!searchQuery) setIsSearchExpanded(false); }} readOnly={!isSearchExpanded && !searchQuery}
+          />
+        </motion.div>
+
+        <div className="flex items-center gap-1 mr-1 shrink-0">
+          <button onClick={isLoggedIn ? onOpenProfile : onOpenAuth} className="w-10 h-10 rounded-none hover:bg-white/20 flex items-center justify-center relative">
+            <User size={18} />
+            {isLoggedIn && <span className="absolute bottom-2 right-2 w-2 h-2 bg-green-500 rounded-none border border-black"></span>}
+          </button>
+          <button onClick={onOpenCart} className="w-10 h-10 rounded-none hover:bg-white/20 flex items-center justify-center relative">
+            <ShoppingBag size={18} />
+            {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-none shadow-[0_0_8px_rgba(255,255,255,0.8)]">{cartCount}</span>}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function CityModal({ isOpen, onClose, currentCity, onSelectCity }: any) {
+  const [search, setSearch] = useState('');
+  if (!isOpen) return null;
+  
+  const filtered = CITIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        className="relative w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-3xl rounded-none shadow-2xl p-6 border border-black/10 dark:border-white/10 flex flex-col max-h-[80vh]"
+      >
+        <h2 className="text-xl font-black uppercase tracking-tighter mb-4 text-center">Выберите город</h2>
+        <div className="relative mb-4">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
+          <input 
+            type="text" 
+            placeholder="Поиск города..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border-none outline-none text-sm font-bold uppercase tracking-wider"
+          />
+        </div>
+        <div className="space-y-2 overflow-y-auto flex-1 pr-2">
+          {filtered.length > 0 ? filtered.map(c => (
+            <button
+              key={c}
+              onClick={() => { onSelectCity(c); onClose(); }}
+              className={cn(
+                "w-full text-left px-4 py-3 rounded-none transition-colors flex items-center justify-between font-bold uppercase tracking-wider text-sm",
+                currentCity === c ? "bg-black text-white dark:bg-white dark:text-black" : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              )}
+            >
+              {c}
+              {currentCity === c && <CheckCircle size={16} />}
+            </button>
+          )) : (
+            <p className="text-center text-[#86868B] py-4 font-bold uppercase tracking-wider text-sm">Город не найден</p>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function AuthModal({ isOpen, onClose, onLogin }: any) {
+  const [step, setStep] = useState(1);
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1);
+      setPhone('');
+      setCode('');
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleSendCode = () => {
+    if (phone.length < 10) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setStep(2);
+    }, 1000);
+  };
+
+  const handleVerify = () => {
+    if (code.length < 4) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      onLogin();
+    }, 1000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-md bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-3xl rounded-none p-8 shadow-2xl border border-black/10 dark:border-white/10">
+        <button onClick={onClose} className="absolute top-6 right-6 w-8 h-8 bg-black/5 dark:bg-white/10 rounded-none flex items-center justify-center hover:bg-black/10 transition-colors">
+          <X size={16} />
+        </button>
+        
+        <div className="text-center mb-8 mt-4">
+          <div className="font-black uppercase tracking-tighter text-4xl mb-6 mx-auto">HYPE</div>
+          <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Войти в HYPE</h2>
+          <p className="text-[#86868B] text-sm font-bold uppercase tracking-wider">{step === 1 ? 'Введите номер телефона для входа' : `Код отправлен на ${phone}`}</p>
+        </div>
+
+        {step === 1 ? (
+          <div className="space-y-4">
+            <input 
+              type="tel" 
+              placeholder="+7 (999) 000-00-00" 
+              value={phone}
+              onChange={(e) => {
+                let val = e.target.value.replace(/\D/g, '');
+                if (val.startsWith('7') || val.startsWith('8')) val = val.slice(1);
+                let formatted = val.length > 0 ? '+7' : '';
+                if (val.length > 0) formatted += ' (' + val.substring(0, 3);
+                if (val.length >= 4) formatted += ') ' + val.substring(3, 6);
+                if (val.length >= 7) formatted += '-' + val.substring(6, 8);
+                if (val.length >= 9) formatted += '-' + val.substring(8, 10);
+                setPhone(formatted);
+              }}
+              maxLength={18}
+              className="w-full px-5 py-4 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-transparent focus:border-black/20 dark:focus:border-white/20 outline-none transition-all text-base text-center font-bold tracking-wide uppercase"
+            />
+            <button 
+              onClick={handleSendCode}
+              disabled={isLoading || phone.length < 18}
+              className="w-full py-4 rounded-none bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-tighter transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 flex justify-center items-center"
+            >
+              {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Получить код'}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <input 
+              type="text" 
+              placeholder="0000" 
+              maxLength={4}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              className="w-full px-5 py-4 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-transparent focus:border-black/20 dark:focus:border-white/20 outline-none transition-all text-2xl text-center font-black tracking-[0.5em]"
+            />
+            <button 
+              onClick={handleVerify}
+              disabled={isLoading || code.length < 4}
+              className="w-full py-4 rounded-none bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-tighter transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 flex justify-center items-center"
+            >
+              {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Подтвердить'}
+            </button>
+            <button onClick={() => setStep(1)} className="w-full py-2 text-sm text-[#86868B] hover:text-black dark:hover:text-white transition-colors font-bold uppercase tracking-wider">Изменить номер</button>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+function ProductModal({ product, isOpen, onClose, onAddToCart, isFavorite, onToggleFavorite, city, onCheckout, showToast }: any) {
+  const [activeImage, setActiveImage] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) setActiveImage(0);
+  }, [isOpen]);
+
+  if (!product || !isOpen) return null;
+  const minPrice = Math.min(...product.history);
+  const range = Math.max(...product.history) - minPrice || 1;
+  const points = product.history.map((p: number, i: number) => `${(i / 5) * 100},${100 - ((p - minPrice) / range) * 80 - 10}`).join(' L ');
+
+  const deliveryDate = city === 'Москва' ? 'Завтра' : city ? 'Через 3-5 дней' : 'Укажите город';
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-6">
+      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, y: "100%" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: "100%" }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="relative w-full max-w-6xl bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-3xl rounded-none shadow-2xl overflow-hidden flex flex-col sm:flex-row max-h-[95vh] sm:max-h-[90vh] border border-black/10 dark:border-white/10"
+      >
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-none sm:hidden z-50"></div>
+        <button onClick={onClose} className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/10 dark:bg-white/10 backdrop-blur-md rounded-none flex items-center justify-center hover:bg-black/20 transition-colors">
+          <X size={20} className="text-black dark:text-white" />
+        </button>
+
+        <div className="w-full sm:w-1/2 flex flex-col bg-zinc-100 dark:bg-zinc-900 relative shrink-0 border-r border-black/10 dark:border-white/10">
+          <div className="flex-1 relative min-h-[300px] sm:min-h-[500px]">
+            <AnimatePresence mode="wait">
+              <motion.img 
+                key={activeImage}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                src={product.images ? product.images[activeImage] : product.image} 
+                alt={product.name} 
+                className="absolute inset-0 w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal grayscale" 
+                referrerPolicy="no-referrer" 
+              />
+            </AnimatePresence>
+            <button 
+              onClick={() => onToggleFavorite(product.id)}
+              className="absolute top-4 left-4 z-10 w-12 h-12 rounded-none bg-white dark:bg-black flex items-center justify-center shadow-sm transition-transform hover:scale-105 border border-black/10 dark:border-white/10"
+            >
+              <Heart size={22} className={isFavorite ? "fill-red-500 text-red-500" : "text-black dark:text-white"} />
+            </button>
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('Ссылка скопирована', 'info');
+              }}
+              className="absolute top-4 left-20 z-10 w-12 h-12 rounded-none bg-white dark:bg-black flex items-center justify-center shadow-sm transition-transform hover:scale-105 border border-black/10 dark:border-white/10"
+            >
+              <Share2 size={20} className="text-black dark:text-white" />
+            </button>
+          </div>
+          {product.images && product.images.length > 1 && (
+            <div className="p-4 flex gap-3 overflow-x-auto scrollbar-hide bg-white dark:bg-black border-t border-black/10 dark:border-white/10 absolute bottom-0 left-0 right-0">
+              {product.images.map((img: string, idx: number) => (
+                <button 
+                  key={idx} 
+                  onClick={() => setActiveImage(idx)}
+                  className={cn(
+                    "w-16 h-16 rounded-none overflow-hidden shrink-0 border-2 transition-all",
+                    activeImage === idx ? "border-black dark:border-white scale-105" : "border-transparent opacity-70 hover:opacity-100"
+                  )}
+                >
+                  <img src={img} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal bg-zinc-200 dark:bg-zinc-800 grayscale" referrerPolicy="no-referrer" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="w-full sm:w-1/2 overflow-y-auto p-6 sm:p-10 flex flex-col gap-8 relative">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-1 bg-black text-white dark:bg-white dark:text-black px-2 py-1 rounded-none text-xs font-black uppercase tracking-wider">
+                <Star size={12} className="fill-current" />
+                <span>{product.rating}</span>
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#86868B]">{product.reviews} отзывов</span>
+              {product.isNew && <span className="bg-black text-white dark:bg-white dark:text-black text-[10px] font-black px-2 py-1 rounded-none uppercase tracking-wider ml-2 border border-black/20 dark:border-white/20">New</span>}
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter mb-4">{product.name}</h2>
+            <div className="flex items-end gap-4">
+              <span className="text-4xl font-black uppercase tracking-tighter">{product.price.toLocaleString()} ₽</span>
+              {product.oldPrice && <span className="text-xl text-[#86868B] line-through mb-1 font-bold uppercase tracking-wider">{product.oldPrice.toLocaleString()} ₽</span>}
+              {product.oldPrice && (
+                <span className="text-xs font-black text-white bg-red-500 px-2 py-1 rounded-none mb-2 uppercase tracking-wider">
+                  -{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-zinc-100 dark:bg-zinc-900 p-5 rounded-none border border-black/10 dark:border-white/10 flex items-center gap-4">
+            <div className="w-12 h-12 bg-black dark:bg-white rounded-none flex items-center justify-center shrink-0">
+              <Package size={24} className="text-white dark:text-black" />
+            </div>
+            <div>
+              <p className="font-black uppercase tracking-tighter text-sm">Доставка в {city || 'ваш город'}</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#86868B]">{deliveryDate} • Бесплатно</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xl font-black uppercase tracking-tighter">О товаре</h3>
+            <p className="text-[#86868B] leading-relaxed text-sm font-bold uppercase tracking-wider">{product.description}</p>
+          </div>
+
+          {product.characteristics && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-black uppercase tracking-tighter">Характеристики</h3>
+              <div className="bg-zinc-100 dark:bg-zinc-900 rounded-none border border-black/10 dark:border-white/10 overflow-hidden">
+                {product.characteristics.map((char: any, idx: number) => (
+                  <div key={idx} className={cn("flex justify-between p-4", idx !== product.characteristics.length - 1 && "border-b border-black/10 dark:border-white/10")}>
+                    <span className="text-[#86868B] font-bold uppercase tracking-wider text-xs">{char.name}</span>
+                    <span className="font-black uppercase tracking-tighter text-sm text-right">{char.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-zinc-100 dark:bg-zinc-900 p-6 rounded-none border border-black/10 dark:border-white/10">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-black uppercase tracking-tighter flex items-center gap-2"><TrendingUp size={16} /> Динамика цены</h3>
+            </div>
+            <div className="h-24 w-full relative">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+                <path d={`M 0,100 L 0,${100 - ((product.history[0] - minPrice) / range) * 80 - 10} L ${points} L 100,100 Z`} className="fill-black/5 dark:fill-white/5" />
+                <path d={`M ${points}`} className="stroke-black dark:stroke-white fill-none stroke-[3] stroke-linecap-square stroke-linejoin-miter" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="sticky bottom-0 pt-6 pb-2 bg-white dark:bg-[#1C1C1E] border-t border-black/10 dark:border-white/10 mt-auto flex gap-3">
+            <button 
+              onClick={() => { onAddToCart(product); onClose(); }}
+              className="flex-1 py-4 rounded-none bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-tighter text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-sm flex items-center justify-center gap-2"
+            >
+              <ShoppingBag size={20} /> В корзину
+            </button>
+            <button 
+              onClick={() => { onAddToCart(product); onClose(); onCheckout(); }}
+              className="px-6 py-4 rounded-none bg-zinc-200 dark:bg-zinc-800 text-black dark:text-white font-black uppercase tracking-tighter text-sm sm:text-base hover:bg-zinc-300 dark:hover:bg-zinc-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-sm whitespace-nowrap"
+            >
+              Купить сейчас
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function CartModal({ isOpen, onClose, cart, updateQuantity, removeItem, city, onCheckout }: any) {
+  const [promoCode, setPromoCode] = useState('');
+  const [discount, setDiscount] = useState(0);
+
+  if (!isOpen) return null;
+  const total = cart.reduce((sum: number, item: any) => sum + item.product.price * item.quantity, 0);
+  const finalTotal = total * (1 - discount);
+  const deliveryDate = city === 'Москва' ? 'Завтра' : city ? 'Через 3-5 дней' : 'Укажите город для расчета';
+
+  const handleApplyPromo = () => {
+    if (promoCode.toUpperCase() === 'LUMINA') {
+      setDiscount(0.1);
+    } else {
+      setDiscount(0);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6">
+      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 50 }}
+        className="relative w-full max-w-4xl bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-3xl rounded-none shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] border border-black/10 dark:border-white/10"
+      >
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-none sm:hidden z-50"></div>
+        <div className="px-6 sm:px-8 py-6 flex justify-between items-center border-b border-black/10 dark:border-white/10 bg-white/50 dark:bg-[#1C1C1E]/50 backdrop-blur-xl z-10 pt-8 sm:pt-6">
+          <h2 className="text-2xl font-black uppercase tracking-tighter">Корзина</h2>
+          <button onClick={onClose} className="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 rounded-none flex items-center justify-center hover:bg-zinc-200 transition-colors border border-black/10 dark:border-white/10">
+            <X size={20} />
+          </button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
+          {cart.length === 0 ? (
+            <div className="text-center py-12 text-[#86868B] font-black uppercase tracking-tighter text-xl">Корзина пуста</div>
+          ) : (
+            cart.map((item: any) => (
+              <div key={item.product.id} className="flex flex-row gap-4 sm:gap-6 bg-zinc-100 dark:bg-zinc-900 p-4 rounded-none border border-black/10 dark:border-white/10 items-center">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-none overflow-hidden bg-white dark:bg-[#1C1C1E] shrink-0 border border-black/10 dark:border-white/10">
+                  <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal grayscale" referrerPolicy="no-referrer" />
+                </div>
+                <div className="flex-1 flex flex-col justify-center py-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-base sm:text-lg font-black uppercase tracking-tighter line-clamp-2 pr-2">{item.product.name}</h4>
+                    <button onClick={() => removeItem(item.product.id)} className="text-[#86868B] hover:text-red-500 shrink-0 p-1 transition-colors"><Trash2 size={18}/></button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto gap-3 sm:gap-0">
+                    <span className="font-black uppercase tracking-tighter text-lg sm:text-xl">{item.product.price.toLocaleString()} ₽</span>
+                    <div className="flex items-center gap-3 sm:gap-4 bg-white dark:bg-[#1C1C1E] rounded-none px-3 sm:px-4 py-1.5 sm:py-2 border border-black/10 dark:border-white/10 shadow-sm self-start sm:self-auto">
+                      <button onClick={() => updateQuantity(item.product.id, -1)} className="text-[#86868B] hover:text-black dark:hover:text-white px-1 font-black transition-colors">-</button>
+                      <span className="text-sm font-black w-4 text-center">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.product.id, 1)} className="text-[#86868B] hover:text-black dark:hover:text-white px-1 font-black transition-colors">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {cart.length > 0 && (
+          <div className="p-6 sm:p-8 bg-zinc-100 dark:bg-zinc-900 border-t border-black/10 dark:border-white/10 pb-8 sm:pb-8">
+            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 justify-between items-end">
+              <div className="w-full md:w-auto space-y-3 flex-1">
+                <div className="flex gap-3">
+                  <div className="flex-1 h-12 rounded-none bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 flex items-center justify-center gap-2 text-sm font-black uppercase tracking-tighter shadow-sm">
+                    <Apple size={18} /> Pay
+                  </div>
+                  <div className="flex-1 h-12 rounded-none bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 flex items-center justify-center gap-2 text-sm font-black uppercase tracking-tighter shadow-sm">
+                    <CreditCard size={18} /> Карта
+                  </div>
+                </div>
+                <p className="text-xs text-[#86868B] flex items-center gap-1 justify-center sm:justify-start font-bold uppercase tracking-wider">
+                  <Package size={14} /> Доставка в {city || 'ваш город'}: <strong className="text-black dark:text-white">{deliveryDate}</strong>
+                </p>
+              </div>
+              
+              <div className="w-full md:w-auto min-w-[100%] sm:min-w-[300px]">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="relative flex-1">
+                    <Tag size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                    <input 
+                      type="text" 
+                      placeholder="Промокод (HYPE)" 
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      className="w-full h-12 pl-10 pr-4 rounded-none bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-all text-sm font-bold uppercase tracking-wider"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleApplyPromo}
+                    className="h-12 px-4 rounded-none bg-black dark:bg-white text-white dark:text-black text-sm font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors whitespace-nowrap border border-black/10 dark:border-white/10"
+                  >
+                    Применить
+                  </button>
+                </div>
+                <div className="flex justify-between items-end mb-6">
+                  <div className="flex flex-col">
+                    <span className="text-lg text-[#86868B] font-black uppercase tracking-tighter">Итого</span>
+                    {discount > 0 && <span className="text-sm text-green-500 font-bold uppercase tracking-wider">Скидка 10%</span>}
+                  </div>
+                  <div className="flex flex-col items-end">
+                    {discount > 0 && <span className="text-sm text-[#86868B] line-through font-bold">{total.toLocaleString()} ₽</span>}
+                    <span className="text-3xl font-black uppercase tracking-tighter">{finalTotal.toLocaleString()} ₽</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => onCheckout(finalTotal)}
+                  className="w-full py-4 rounded-none bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-tighter text-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-xl flex items-center justify-center gap-2 border border-black/10 dark:border-white/10"
+                >
+                  Оформить заказ
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+function PaymentModal({ isOpen, onClose, total, onComplete }: any) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handlePay = () => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        onComplete();
+      }, 2000);
+    }, 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        className="relative w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-3xl rounded-none p-8 shadow-2xl text-center border border-black/10 dark:border-white/10"
+      >
+        {!isProcessing && !isSuccess && (
+          <>
+            <button onClick={onClose} className="absolute top-6 right-6 text-[#86868B] hover:text-black dark:hover:text-white transition-colors"><X size={20}/></button>
+            <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-none flex items-center justify-center mx-auto mb-6 border border-black/10 dark:border-white/10">
+              <CreditCard size={28} className="text-black dark:text-white" />
+            </div>
+            <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Оплата заказа</h2>
+            <p className="text-[#86868B] mb-8 font-bold uppercase tracking-wider text-sm">Сумма к оплате: <strong className="text-black dark:text-white">{total.toLocaleString()} ₽</strong></p>
+            
+            <div className="space-y-3 mb-8 text-left">
+              <input type="text" placeholder="Номер карты" className="w-full px-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors font-bold uppercase tracking-wider text-sm" defaultValue="4276 1234 5678 9012" />
+              <div className="flex gap-3">
+                <input type="text" placeholder="ММ/ГГ" className="w-1/2 px-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors font-bold uppercase tracking-wider text-sm" defaultValue="12/25" />
+                <input type="password" placeholder="CVC" className="w-1/2 px-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors font-bold uppercase tracking-wider text-sm" defaultValue="***" />
+              </div>
+            </div>
+
+            <button onClick={handlePay} className="w-full py-4 rounded-none bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-tighter text-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors border border-black/10 dark:border-white/10">
+              Оплатить {total.toLocaleString()} ₽
+            </button>
+          </>
+        )}
+        {isProcessing && (
+          <div className="py-12 flex flex-col items-center">
+            <Loader2 size={48} className="animate-spin text-black dark:text-white mb-4" />
+            <h2 className="text-xl font-black uppercase tracking-tighter">Обработка платежа...</h2>
+          </div>
+        )}
+        {isSuccess && (
+          <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="py-12 flex flex-col items-center">
+            <div className="w-20 h-20 bg-black dark:bg-white rounded-none flex items-center justify-center mb-6 border border-black/10 dark:border-white/10">
+              <CheckCircle size={40} className="text-white dark:text-black" />
+            </div>
+            <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Оплата прошла успешно!</h2>
+            <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Ваш заказ оформлен.</p>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+function ProfileView({ orders, favorites, onLogout, onClose, onRemoveFavorite, showToast }: any) {
+  const [activeTab, setActiveTab] = useState('main');
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  
+  // Settings state
+  const [notifications, setNotifications] = useState(true);
+  const [emailPromo, setEmailPromo] = useState(false);
+  
+  // Support state
+  const [supportMessage, setSupportMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState([
+    { text: 'Здравствуйте! Чем можем помочь?', isBot: true }
+  ]);
+
+  // Reviews state
+  const [reviewingProduct, setReviewingProduct] = useState<any>(null);
+  const [rating, setRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [submittedReviews, setSubmittedReviews] = useState<Record<number, { rating: number, text: string }>>({});
+
+  const deliveredProducts = orders
+    .filter((o: any) => o.status === 'Доставлен')
+    .flatMap((o: any) => o.items.map((i: any) => i.product))
+    .filter((v: any, i: number, a: any[]) => a.findIndex(t => (t.id === v.id)) === i); // unique
+
+  const handleSendSupport = () => {
+    if (!supportMessage.trim()) return;
+    setChatMessages([...chatMessages, { text: supportMessage, isBot: false }]);
+    setSupportMessage('');
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, { text: 'Спасибо за обращение! Оператор ответит вам в течение 5 минут.', isBot: true }]);
+    }, 1000);
+  };
+
+  const handleSubmitReview = () => {
+    if (!reviewingProduct) return;
+    setSubmittedReviews(prev => ({
+      ...prev,
+      [reviewingProduct.id]: { rating, text: reviewText }
+    }));
+    setReviewingProduct(null);
+    setRating(5);
+    setReviewText('');
+    showToast('Отзыв успешно отправлен!');
+  };
+
+  const renderContent = () => {
+    if (activeTab === 'orders') {
+      if (selectedOrder) {
+        return (
+          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+            <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-6 transition-colors font-bold uppercase tracking-wider text-sm">
+              <ArrowLeft size={18} /> К списку заказов
+            </button>
+            <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Заказ #{selectedOrder.id}</h2>
+            
+            <div className="bg-white dark:bg-[#1C1C1E] p-6 sm:p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm mb-6">
+              <div className="flex flex-col sm:flex-row justify-between gap-4 mb-8">
+                <div>
+                  <p className="text-sm text-[#86868B] mb-1 font-bold uppercase tracking-wider">Статус</p>
+                  <p className={cn("font-black uppercase tracking-tighter text-lg", selectedOrder.status === 'Доставлен' ? "text-green-500" : "text-black dark:text-white")}>{selectedOrder.status}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-[#86868B] mb-1 font-bold uppercase tracking-wider">Примерная доставка</p>
+                  <p className="font-black uppercase tracking-tighter text-lg">{selectedOrder.deliveryDate}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-[#86868B] mb-1 font-bold uppercase tracking-wider">Сумма</p>
+                  <p className="font-black uppercase tracking-tighter text-lg">{selectedOrder.total.toLocaleString()} ₽</p>
+                </div>
+              </div>
+
+              <div className="relative pl-6 border-l-2 border-black dark:border-white space-y-8 mb-8 ml-2">
+                {selectedOrder.trackingSteps.map((step: any, idx: number) => (
+                  <div key={idx} className="relative">
+                    <div className={cn("absolute -left-[35px] w-4 h-4 rounded-none border-4 border-white dark:border-[#1C1C1E]", step.completed ? (selectedOrder.status === 'Доставлен' && idx === selectedOrder.trackingSteps.length - 1 ? "bg-green-500" : "bg-black dark:bg-white") : "bg-zinc-300 dark:bg-zinc-700")} />
+                    <h4 className={cn("font-bold uppercase tracking-wider", step.completed ? "text-[#1D1D1F] dark:text-white" : "text-[#86868B]")}>{step.title}</h4>
+                    <p className="text-sm text-[#86868B] mt-1 font-medium">{step.description}</p>
+                    {step.date && <p className="text-xs text-[#86868B] mt-1 font-bold uppercase tracking-wider">{step.date}</p>}
+                  </div>
+                ))}
+              </div>
+
+              <h3 className="font-black uppercase tracking-tighter mb-4">Товары в заказе</h3>
+              <div className="space-y-4">
+                {selectedOrder.items.map((item: any) => (
+                  <div key={item.product.id} className="flex gap-4 items-center">
+                    <img src={item.product.image} className="w-16 h-16 rounded-none object-cover bg-zinc-100 dark:bg-zinc-800 grayscale" referrerPolicy="no-referrer" />
+                    <div className="flex-1">
+                      <p className="font-bold uppercase tracking-wider text-sm line-clamp-1">{item.product.name}</p>
+                      <p className="text-sm text-[#86868B] font-bold uppercase tracking-wider">{item.quantity} шт. × {item.product.price.toLocaleString()} ₽</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+          <button onClick={() => setActiveTab('main')} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-6 transition-colors font-bold uppercase tracking-wider text-sm">
+            <ArrowLeft size={18} /> Назад
+          </button>
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Мои заказы</h2>
+          {orders.length === 0 ? (
+            <p className="text-[#86868B] font-bold uppercase tracking-wider">У вас пока нет заказов.</p>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((order: any) => (
+                <div key={order.id} onClick={() => setSelectedOrder(order)} className="bg-white dark:bg-[#1C1C1E] p-6 rounded-none border border-black/10 dark:border-white/10 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center mb-4 border-b border-black/10 dark:border-white/10 pb-4">
+                    <div>
+                      <span className="font-black uppercase tracking-tighter">Заказ #{order.id}</span>
+                      <p className="text-sm text-[#86868B] font-bold uppercase tracking-wider">{order.date}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-black uppercase tracking-tighter">{order.total.toLocaleString()} ₽</span>
+                      <p className={cn("text-sm font-bold uppercase tracking-wider", order.status === 'Доставлен' ? "text-green-500" : "text-black dark:text-white")}>{order.status}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                    {order.items.map((item: any) => (
+                      <img key={item.product.id} src={item.product.image} className="w-16 h-16 rounded-none object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0 grayscale" referrerPolicy="no-referrer" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-[#86868B] mt-2 font-bold uppercase tracking-wider">Доставка в: {order.city}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'favorites') {
+      const favProducts = PRODUCTS.filter(p => favorites.includes(p.id));
+      return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+          <button onClick={() => setActiveTab('main')} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-6 transition-colors font-bold uppercase tracking-wider text-sm">
+            <ArrowLeft size={18} /> Назад
+          </button>
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Избранное</h2>
+          {favProducts.length === 0 ? (
+            <p className="text-[#86868B] font-bold uppercase tracking-wider">В избранном пока пусто.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {favProducts.map(product => (
+                <div key={product.id} className="bg-white dark:bg-[#1C1C1E] p-4 rounded-none border border-black/10 dark:border-white/10 flex gap-4 items-center shadow-sm">
+                  <img src={product.image} className="w-20 h-20 rounded-none object-cover bg-zinc-100 dark:bg-zinc-800 grayscale" referrerPolicy="no-referrer" />
+                  <div className="flex-1">
+                    <h4 className="font-bold uppercase tracking-wider text-sm line-clamp-1">{product.name}</h4>
+                    <p className="font-black uppercase tracking-tighter mt-1">{product.price.toLocaleString()} ₽</p>
+                  </div>
+                  <button onClick={() => onRemoveFavorite(product.id)} className="w-10 h-10 rounded-none bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors border border-red-500/20">
+                    <Heart size={18} className="fill-current" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'reviews') {
+      return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+          <button onClick={() => setActiveTab('main')} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-6 transition-colors font-bold uppercase tracking-wider text-sm">
+            <ArrowLeft size={18} /> Назад
+          </button>
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Мои отзывы</h2>
+          
+          {reviewingProduct ? (
+            <div className="bg-white dark:bg-[#1C1C1E] p-6 sm:p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+              <div className="flex gap-4 items-center mb-6">
+                <img src={reviewingProduct.image} className="w-16 h-16 rounded-none object-cover bg-zinc-100 dark:bg-zinc-800 grayscale" referrerPolicy="no-referrer" />
+                <div>
+                  <h4 className="font-bold uppercase tracking-wider text-sm">{reviewingProduct.name}</h4>
+                  <p className="text-sm text-[#86868B] font-bold uppercase tracking-wider">Оцените покупку</p>
+                </div>
+              </div>
+              <div className="flex gap-2 mb-6">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button key={star} onClick={() => setRating(star)} className="focus:outline-none hover:scale-110 transition-transform">
+                    <Star size={32} className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-300 dark:text-zinc-700"} />
+                  </button>
+                ))}
+              </div>
+              <textarea 
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                placeholder="Расскажите о ваших впечатлениях..."
+                className="w-full h-32 p-4 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none resize-none mb-6 font-bold uppercase tracking-wider text-sm"
+              />
+              <div className="flex gap-4">
+                <button onClick={() => setReviewingProduct(null)} className="flex-1 py-3 rounded-none bg-zinc-100 dark:bg-zinc-800 font-black uppercase tracking-tighter hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors border border-black/10 dark:border-white/10">Отмена</button>
+                <button onClick={handleSubmitReview} className="flex-1 py-3 rounded-none bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors border border-black/10 dark:border-white/10">Отправить</button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {deliveredProducts.length === 0 ? (
+                <p className="text-[#86868B] font-bold uppercase tracking-wider">У вас пока нет доставленных товаров для отзыва.</p>
+              ) : (
+                <div className="space-y-4">
+                  {deliveredProducts.map((product: any) => {
+                    const review = submittedReviews[product.id];
+                    return (
+                      <div key={product.id} className="bg-white dark:bg-[#1C1C1E] p-6 rounded-none border border-black/10 dark:border-white/10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                        <div className="flex gap-4 items-center">
+                          <img src={product.image} className="w-16 h-16 rounded-none object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0" referrerPolicy="no-referrer" />
+                          <div>
+                            <h4 className="font-bold uppercase tracking-wider text-sm line-clamp-1">{product.name}</h4>
+                            {review ? (
+                              <div className="flex items-center gap-1 mt-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} size={14} className={i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-300 dark:text-zinc-700"} />
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-[#86868B] mt-1 font-bold uppercase tracking-wider">Товар доставлен</p>
+                            )}
+                          </div>
+                        </div>
+                        {review ? (
+                          <div className="sm:max-w-xs text-sm text-[#86868B] bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-none font-medium">
+                            "{review.text || 'Без текста'}"
+                          </div>
+                        ) : (
+                          <button onClick={() => setReviewingProduct(product)} className="px-6 py-2.5 rounded-none bg-black dark:bg-white text-white dark:text-black text-sm font-black uppercase tracking-tighter hover:scale-105 transition-transform shrink-0">
+                            Оставить отзыв
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'support') {
+      return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+          <button onClick={() => setActiveTab('main')} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-6 transition-colors font-bold uppercase tracking-wider text-sm">
+            <ArrowLeft size={18} /> Назад
+          </button>
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Поддержка</h2>
+          
+          <div className="bg-white dark:bg-[#1C1C1E] rounded-none border border-black/10 dark:border-white/10 shadow-sm overflow-hidden flex flex-col h-[60vh] sm:h-[500px]">
+            <div className="p-6 border-b border-black/10 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900 flex items-center gap-4">
+              <div className="w-12 h-12 bg-black dark:bg-white rounded-none flex items-center justify-center text-white dark:text-black border border-black/10 dark:border-white/10"><Shield size={24} /></div>
+              <div>
+                <h3 className="font-black uppercase tracking-tighter">Чат с поддержкой</h3>
+                <p className="text-sm text-[#86868B] font-bold uppercase tracking-wider">Обычно отвечаем за 5 минут</p>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white dark:bg-[#1C1C1E]">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={cn("flex", msg.isBot ? "justify-start" : "justify-end")}>
+                  <div className={cn("max-w-[80%] p-4 rounded-none font-bold uppercase tracking-wider text-sm border border-black/10 dark:border-white/10", msg.isBot ? "bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white" : "bg-black dark:bg-white text-white dark:text-black")}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="p-4 border-t border-black/10 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900">
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={supportMessage}
+                  onChange={(e) => setSupportMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendSupport()}
+                  placeholder="Напишите сообщение..." 
+                  className="flex-1 px-4 py-3 rounded-none bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors font-bold uppercase tracking-wider text-sm"
+                />
+                <button onClick={handleSendSupport} className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-none font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors border border-black/10 dark:border-white/10">
+                  Отправить
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeTab === 'settings') {
+      return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+          <button onClick={() => setActiveTab('main')} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-6 transition-colors font-bold uppercase tracking-wider text-sm">
+            <ArrowLeft size={18} /> Назад
+          </button>
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Настройки</h2>
+          
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-[#1C1C1E] p-6 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+              <h3 className="text-lg font-black uppercase tracking-tighter mb-4">Уведомления</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold uppercase tracking-wider">Push-уведомления</p>
+                    <p className="text-sm text-[#86868B] font-bold uppercase tracking-wider">Статусы заказов и акции</p>
+                  </div>
+                  <button onClick={() => setNotifications(!notifications)} className={cn("w-12 h-6 rounded-none transition-colors relative border border-black/10 dark:border-white/10", notifications ? "bg-black dark:bg-white" : "bg-zinc-300 dark:bg-zinc-700")}>
+                    <div className={cn("w-5 h-5 bg-white dark:bg-black rounded-none absolute top-0.5 transition-all border border-black/10 dark:border-white/10", notifications ? "left-[26px]" : "left-[2px]")} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-black/10 dark:border-white/10">
+                  <div>
+                    <p className="font-bold uppercase tracking-wider">Email-рассылка</p>
+                    <p className="text-sm text-[#86868B] font-bold uppercase tracking-wider">Скидки и персональные предложения</p>
+                  </div>
+                  <button onClick={() => setEmailPromo(!emailPromo)} className={cn("w-12 h-6 rounded-none transition-colors relative border border-black/10 dark:border-white/10", emailPromo ? "bg-black dark:bg-white" : "bg-zinc-300 dark:bg-zinc-700")}>
+                    <div className={cn("w-5 h-5 bg-white dark:bg-black rounded-none absolute top-0.5 transition-all border border-black/10 dark:border-white/10", emailPromo ? "left-[26px]" : "left-[2px]")} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#1C1C1E] p-6 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+              <h3 className="text-lg font-black uppercase tracking-tighter mb-4">Личные данные</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-[#86868B] block mb-1 font-bold uppercase tracking-wider">Имя</label>
+                  <input type="text" defaultValue="Иван Иванов" className="w-full px-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors font-bold uppercase tracking-wider text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm text-[#86868B] block mb-1 font-bold uppercase tracking-wider">Телефон</label>
+                  <input type="text" defaultValue="+7 (999) 123-45-67" disabled className="w-full px-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none opacity-70 cursor-not-allowed font-bold uppercase tracking-wider text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm text-[#86868B] block mb-1 font-bold uppercase tracking-wider">Email</label>
+                  <input type="email" placeholder="Укажите email" className="w-full px-4 py-3 rounded-none bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/10 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors font-bold uppercase tracking-wider text-sm" />
+                </div>
+                <button 
+                  onClick={() => showToast('Настройки сохранены')}
+                  className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-none font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors border border-black/10 dark:border-white/10"
+                >
+                  Сохранить изменения
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#1C1C1E] p-6 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+              <h3 className="text-lg font-black uppercase tracking-tighter text-red-500 mb-2">Опасная зона</h3>
+              <p className="text-sm text-[#86868B] mb-4 font-bold uppercase tracking-wider">Удаление аккаунта приведет к потере всех данных, истории заказов и избранного.</p>
+              <button className="px-6 py-3 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-none font-black uppercase tracking-tighter hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors border border-red-500/20">
+                Удалить аккаунт
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="animate-in fade-in duration-300">
+        <div className="bg-white dark:bg-[#1C1C1E] rounded-none p-8 shadow-sm border border-black/10 dark:border-white/10 mb-6 flex items-center gap-6">
+          <div className="w-24 h-24 rounded-none bg-black dark:bg-white flex items-center justify-center text-white dark:text-black text-3xl font-black uppercase tracking-tighter shadow-lg border border-black/10 dark:border-white/10">И</div>
+          <div>
+            <h2 className="text-2xl font-black uppercase tracking-tighter">Иван Иванов</h2>
+            <p className="text-[#86868B] font-bold uppercase tracking-wider">+7 (999) 123-45-67</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div onClick={() => setActiveTab('orders')} className="bg-white dark:bg-[#1C1C1E] rounded-none p-4 sm:p-6 shadow-sm border border-black/10 dark:border-white/10 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mb-3 sm:mb-4 border border-black/10 dark:border-white/10"><Package size={20} className="sm:w-6 sm:h-6" /></div>
+            <h3 className="text-base sm:text-lg font-black uppercase tracking-tighter mb-1">Заказы</h3>
+            <p className="text-xs sm:text-sm text-[#86868B] font-bold uppercase tracking-wider">{orders.length} шт.</p>
+          </div>
+          <div onClick={() => setActiveTab('favorites')} className="bg-white dark:bg-[#1C1C1E] rounded-none p-4 sm:p-6 shadow-sm border border-black/10 dark:border-white/10 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mb-3 sm:mb-4 border border-black/10 dark:border-white/10"><Heart size={20} className="sm:w-6 sm:h-6" /></div>
+            <h3 className="text-base sm:text-lg font-black uppercase tracking-tighter mb-1">Избранное</h3>
+            <p className="text-xs sm:text-sm text-[#86868B] font-bold uppercase tracking-wider">{favorites.length} шт.</p>
+          </div>
+          <div onClick={() => setActiveTab('reviews')} className="bg-white dark:bg-[#1C1C1E] rounded-none p-4 sm:p-6 shadow-sm border border-black/10 dark:border-white/10 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mb-3 sm:mb-4 border border-black/10 dark:border-white/10"><Star size={20} className="sm:w-6 sm:h-6" /></div>
+            <h3 className="text-base sm:text-lg font-black uppercase tracking-tighter mb-1">Отзывы</h3>
+            <p className="text-xs sm:text-sm text-[#86868B] font-bold uppercase tracking-wider">{Object.keys(submittedReviews).length} шт.</p>
+          </div>
+          <div onClick={() => setActiveTab('support')} className="bg-white dark:bg-[#1C1C1E] rounded-none p-4 sm:p-6 shadow-sm border border-black/10 dark:border-white/10 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mb-3 sm:mb-4 border border-black/10 dark:border-white/10"><Shield size={20} className="sm:w-6 sm:h-6" /></div>
+            <h3 className="text-base sm:text-lg font-black uppercase tracking-tighter mb-1">Поддержка</h3>
+            <p className="text-xs sm:text-sm text-[#86868B] font-bold uppercase tracking-wider">Чат 24/7</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#1C1C1E] rounded-none border border-black/10 dark:border-white/10 shadow-sm overflow-hidden mb-6">
+          <button onClick={() => setActiveTab('settings')} className="w-full p-6 flex items-center justify-between hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors border-b border-black/10 dark:border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-none bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-black/10 dark:border-white/10"><Settings size={20} /></div>
+              <span className="font-black uppercase tracking-tighter text-lg">Настройки аккаунта</span>
+            </div>
+            <ChevronRight size={20} className="text-[#86868B]" />
+          </button>
+          <button onClick={onLogout} className="w-full p-6 flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-none bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-colors"><LogOut size={20} /></div>
+              <span className="font-black uppercase tracking-tighter text-lg text-red-500">Выйти из аккаунта</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-[#F5F5F7]/95 dark:bg-[#000000]/95 backdrop-blur-3xl overflow-y-auto pt-24 pb-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-black uppercase tracking-tighter">Профиль</h1>
+          <button onClick={onClose} className="w-10 h-10 bg-white dark:bg-[#1C1C1E] rounded-none flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors shadow-sm"><X size={20} /></button>
+        </div>
+        {renderContent()}
+      </div>
+    </div>
+  );
+}
+
+function Footer({ onNavigate }: any) {
+  return (
+    <footer className="bg-white dark:bg-[#1C1C1E] border-t border-black/10 dark:border-white/10 py-12 mt-20">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div className="text-3xl font-black tracking-tighter uppercase mb-4 cursor-pointer" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('home'); }}>HYPE</div>
+          <p className="text-[#86868B] text-sm font-bold uppercase tracking-wider">Эксклюзивный стритвир. Лимитированные коллекции с доставкой по всему миру.</p>
+        </div>
+        <div>
+          <h4 className="font-black uppercase tracking-tighter mb-4">Покупателям</h4>
+          <ul className="space-y-2 text-sm text-[#86868B] font-bold uppercase tracking-wider">
+            <li><button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('how-to-order'); }} className="hover:text-black dark:hover:text-white transition-colors">Как сделать заказ</button></li>
+            <li><button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('payment'); }} className="hover:text-black dark:hover:text-white transition-colors">Способы оплаты</button></li>
+            <li><button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('delivery'); }} className="hover:text-black dark:hover:text-white transition-colors">Доставка</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-black uppercase tracking-tighter mb-4">Компания</h4>
+          <ul className="space-y-2 text-sm text-[#86868B] font-bold uppercase tracking-wider">
+            <li><button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('about'); }} className="hover:text-black dark:hover:text-white transition-colors">О нас</button></li>
+            <li><button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('contacts'); }} className="hover:text-black dark:hover:text-white transition-colors">Контакты</button></li>
+            <li><button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('careers'); }} className="hover:text-black dark:hover:text-white transition-colors">Вакансии</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-black uppercase tracking-tighter mb-4">Мы в соцсетях</h4>
+          <div className="flex gap-4">
+            <div className="w-10 h-10 rounded-none bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer transition-colors border border-black/10 dark:border-white/10 font-black uppercase tracking-tighter text-sm">VK</div>
+            <div className="w-10 h-10 rounded-none bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer transition-colors border border-black/10 dark:border-white/10 font-black uppercase tracking-tighter text-sm">TG</div>
+          </div>
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-black/10 dark:border-white/10 text-center text-sm text-[#86868B] font-bold uppercase tracking-wider">
+        © 2026 Разработал. Бондарчук Илья,Ваня Сафонов, Сосенушкин Александр.
+      </div>
+    </footer>
+  );
+}
+
+function InfoPage({ title, content, onBack }: any) {
+  return (
+    <div className="pt-32 pb-24 px-4 max-w-4xl mx-auto min-h-[70vh] animate-in fade-in duration-500">
+      <button onClick={onBack} className="flex items-center gap-2 text-[#86868B] hover:text-black dark:hover:text-white mb-8 transition-colors font-black uppercase tracking-tighter">
+        <ArrowLeft size={18} /> На главную
+      </button>
+      <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-12">{title}</h1>
+      <div className="prose prose-zinc dark:prose-invert max-w-none prose-lg font-medium">
+        {content}
+      </div>
+    </div>
+  );
+}
+
+const PAGES_CONTENT: Record<string, { title: string, content: React.ReactNode }> = {
+  'how-to-order': {
+    title: 'Как сделать заказ',
+    content: (
+      <div className="space-y-8 text-[#1D1D1F] dark:text-white/90">
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-4 flex items-center gap-3"><span className="w-8 h-8 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-sm font-black">1</span> Выбор товара</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Используйте удобный поиск или навигацию по категориям. На странице товара вы можете ознакомиться с подробным описанием, характеристиками и отзывами других покупателей.</p>
+        </div>
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-4 flex items-center gap-3"><span className="w-8 h-8 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-sm font-black">2</span> Оформление</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Добавьте понравившиеся товары в корзину. Убедитесь, что вы выбрали правильный город для точного расчета сроков доставки. Проверьте состав заказа и нажмите "Оформить заказ".</p>
+        </div>
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-4 flex items-center gap-3"><span className="w-8 h-8 rounded-none bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-sm font-black">3</span> Оплата и получение</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Оплатите заказ удобным для вас способом. После оплаты вы сможете отслеживать статус заказа в личном кабинете. Мы уведомим вас, когда заказ будет готов к выдаче.</p>
+        </div>
+      </div>
+    )
+  },
+  'payment': {
+    title: 'Способы оплаты',
+    content: (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+          <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-none flex items-center justify-center mb-6"><CreditCard size={24} /></div>
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-3">Банковской картой</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Мы принимаем карты Visa, MasterCard и МИР любых банков. Оплата происходит через защищенное соединение.</p>
+        </div>
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+          <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-none flex items-center justify-center mb-6"><Apple size={24} /></div>
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-3">Apple Pay / Google Pay</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Быстрая и безопасная оплата в один клик с помощью привязанных к вашему смартфону карт.</p>
+        </div>
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm md:col-span-2">
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-3">Безопасность платежей</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Все платежи защищены по стандарту PCI DSS. Мы не храним данные ваших банковских карт. Вся информация передается в зашифрованном виде.</p>
+        </div>
+      </div>
+    )
+  },
+  'delivery': {
+    title: 'Доставка',
+    content: (
+      <div className="space-y-8">
+        <p className="text-lg text-[#86868B] font-bold uppercase tracking-wider mb-8">Мы доставляем заказы по всей территории России. Сроки и стоимость зависят от вашего региона.</p>
+        
+        <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-6 flex items-center gap-3"><Package className="text-black dark:text-white" /> Курьерская доставка</h3>
+          <ul className="space-y-4 text-[#86868B] font-bold uppercase tracking-wider text-sm">
+            <li className="flex justify-between items-center border-b border-black/10 dark:border-white/10 pb-4">
+              <span>Москва и МО</span>
+              <span className="font-black text-black dark:text-white">На следующий день</span>
+            </li>
+            <li className="flex justify-between items-center border-b border-black/10 dark:border-white/10 pb-4">
+              <span>Санкт-Петербург</span>
+              <span className="font-black text-black dark:text-white">1-2 дня</span>
+            </li>
+            <li className="flex justify-between items-center pb-2">
+              <span>Регионы РФ</span>
+              <span className="font-black text-black dark:text-white">3-7 дней</span>
+            </li>
+          </ul>
+        </div>
+
+        <div className="bg-zinc-100 dark:bg-zinc-900 p-8 rounded-none border border-black/10 dark:border-white/10">
+          <h3 className="text-xl font-black uppercase tracking-tighter mb-4">Пункты выдачи</h3>
+          <p className="text-[#86868B] font-bold uppercase tracking-wider text-sm">Вы можете забрать свой заказ в одном из 10 000 пунктов выдачи наших партнеров по всей стране. Срок хранения заказа в пункте выдачи — 7 дней.</p>
+        </div>
+      </div>
+    )
+  },
+  'about': {
+    title: 'О нас',
+    content: (
+      <div className="space-y-8">
+        <div className="aspect-[21/9] rounded-none overflow-hidden mb-12 border border-black/10 dark:border-white/10">
+          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80" alt="Office" className="w-full h-full object-cover grayscale" referrerPolicy="no-referrer" />
+        </div>
+        <h3 className="text-2xl font-black uppercase tracking-tighter">HYPE — это больше, чем просто магазин.</h3>
+        <p className="text-[#86868B] text-lg leading-relaxed font-bold uppercase tracking-wider text-sm">
+          Мы создали платформу, где уличная культура встречается с эксклюзивным дизайном. Наша цель — дать тебе доступ к самым свежим дропам и лимитированным коллекциям. Мы тщательно отбираем каждый айтем, чтобы гарантировать аутентичность и стиль.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
+          <div className="p-6 bg-white dark:bg-[#1C1C1E] rounded-none border border-black/10 dark:border-white/10 text-center shadow-sm">
+            <div className="text-4xl font-black uppercase tracking-tighter text-black dark:text-white mb-2">100K+</div>
+            <div className="text-sm text-[#86868B] font-bold uppercase tracking-wider">В комьюнити</div>
+          </div>
+          <div className="p-6 bg-white dark:bg-[#1C1C1E] rounded-none border border-black/10 dark:border-white/10 text-center shadow-sm">
+            <div className="text-4xl font-black uppercase tracking-tighter text-black dark:text-white mb-2">50+</div>
+            <div className="text-sm text-[#86868B] font-bold uppercase tracking-wider">Эксклюзивных дропов</div>
+          </div>
+          <div className="p-6 bg-white dark:bg-[#1C1C1E] rounded-none border border-black/10 dark:border-white/10 text-center shadow-sm">
+            <div className="text-4xl font-black uppercase tracking-tighter text-black dark:text-white mb-2">24/7</div>
+            <div className="text-sm text-[#86868B] font-bold uppercase tracking-wider">Саппорт</div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  'contacts': {
+    title: 'Контакты',
+    content: (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="space-y-8">
+          <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+            <h3 className="text-lg font-black uppercase tracking-tighter text-[#86868B] mb-2">Служба поддержки</h3>
+            <p className="text-2xl font-black uppercase tracking-tighter">8 (800) 123-45-67</p>
+            <p className="text-sm text-[#86868B] mt-2 font-bold uppercase tracking-wider">Ежедневно с 9:00 до 21:00</p>
+          </div>
+          <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+            <h3 className="text-lg font-black uppercase tracking-tighter text-[#86868B] mb-2">Электронная почта</h3>
+            <p className="text-2xl font-black uppercase tracking-tighter">support@hype.ru</p>
+            <p className="text-sm text-[#86868B] mt-2 font-bold uppercase tracking-wider">Отвечаем в течение часа</p>
+          </div>
+          <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm">
+            <h3 className="text-lg font-black uppercase tracking-tighter text-[#86868B] mb-2">Шоурум</h3>
+            <p className="text-xl font-black uppercase tracking-tighter">г. Москва, Хлебозавод 9</p>
+            <p className="text-sm text-[#86868B] mt-2 font-bold uppercase tracking-wider">Пространство "Ангар"</p>
+          </div>
+        </div>
+        <div className="bg-zinc-100 dark:bg-zinc-900 rounded-none p-8 flex flex-col justify-center items-center text-center border border-black/10 dark:border-white/10">
+          <div className="w-20 h-20 bg-black dark:bg-white rounded-none flex items-center justify-center mb-6 shadow-lg">
+            <Search size={32} className="text-white dark:text-black" />
+          </div>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">Остались вопросы?</h3>
+          <p className="text-[#86868B] mb-8 font-bold uppercase tracking-wider text-sm">Напишите нам в чат, и наши специалисты помогут вам в кратчайшие сроки.</p>
+          <button className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black rounded-none font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+            Открыть чат
+          </button>
+        </div>
+      </div>
+    )
+  },
+  'careers': {
+    title: 'Вакансии',
+    content: (
+      <div className="space-y-8">
+        <p className="text-lg text-[#86868B] font-bold uppercase tracking-wider mb-8">Присоединяйтесь к команде HYPE. Мы ищем талантливых специалистов, готовых развивать стритвир-культуру вместе с нами.</p>
+        
+        <div className="space-y-4">
+          {[
+            { title: 'Frontend Developer (React)', dept: 'Разработка', type: 'Удаленно / Офис' },
+            { title: 'Apparel Designer', dept: 'Дизайн', type: 'Офис (Москва)' },
+            { title: 'Специалист службы поддержки', dept: 'Поддержка', type: 'Удаленно' },
+            { title: 'SMM Manager', dept: 'Маркетинг', type: 'Офис (Москва)' }
+          ].map((job, idx) => (
+            <div key={idx} className="bg-white dark:bg-[#1C1C1E] p-6 sm:p-8 rounded-none border border-black/10 dark:border-white/10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:shadow-md transition-shadow cursor-pointer group">
+              <div>
+                <h3 className="text-xl font-black uppercase tracking-tighter mb-2 group-hover:text-zinc-500 transition-colors">{job.title}</h3>
+                <div className="flex gap-4 text-sm text-[#86868B] font-bold uppercase tracking-wider">
+                  <span className="bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-none border border-black/10 dark:border-white/10">{job.dept}</span>
+                  <span className="flex items-center gap-1"><MapPin size={14} /> {job.type}</span>
+                </div>
+              </div>
+              <button className="w-12 h-12 rounded-none bg-black dark:bg-white flex items-center justify-center text-white dark:text-black group-hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shrink-0">
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+        
+        <div className="mt-12 p-8 bg-zinc-100 dark:bg-zinc-900 rounded-none text-center border border-black/10 dark:border-white/10">
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">Не нашли подходящую вакансию?</h3>
+          <p className="text-[#86868B] mb-6 font-bold uppercase tracking-wider text-sm">Отправьте нам свое резюме, и мы свяжемся с вами, когда появится подходящая позиция.</p>
+          <button className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black rounded-none font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+            Отправить резюме
+          </button>
+        </div>
+      </div>
+    )
+  }
+};
+
+export default function App() {
+  const [activePage, setActivePage] = useState('home');
+  const [city, setCity] = useState<string | null>(null);
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+  
+  const [activeCategory, setActiveCategory] = useState('Все');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [toasts, setToasts] = useState<any[]>([]);
+
+  const showToast = (message: string, type: 'success' | 'info' = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 3000);
+  };
+  
+  const [cart, setCart] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [orders, setOrders] = useState<any[]>([
+    {
+      id: 847291,
+      date: '10 марта 2026',
+      items: [{ product: PRODUCTS[0], quantity: 1 }],
+      total: 54990,
+      status: 'Доставлен',
+      city: 'Москва',
+      deliveryDate: '12 марта 2026',
+      trackingSteps: [
+        { title: 'Заказ оформлен', description: 'Оплата прошла успешно', date: '10.03.2026 14:20', completed: true },
+        { title: 'В пути', description: 'Сортировочный центр, г. Москва', date: '11.03.2026 09:15', completed: true },
+        { title: 'Прибыл в город назначения', description: 'Сортировочный центр, г. Москва', date: '12.03.2026 08:30', completed: true },
+        { title: 'Доставлен', description: 'Получен адресатом', date: '12.03.2026 14:05', completed: true }
+      ]
+    }
+  ]);
+  
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+  const handleAddToCart = (product: any) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) return prev.map(item => item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...prev, { product, quantity: 1 }];
+    });
+    showToast('Товар добавлен в корзину');
+  };
+
+  const updateCartQuantity = (id: number, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.product.id === id) {
+        const newQ = item.quantity + delta;
+        return newQ > 0 ? { ...item, quantity: newQ } : item;
+      }
+      return item;
+    }));
+  };
+
+  const removeFromCart = (id: number) => setCart(prev => prev.filter(item => item.product.id !== id));
+
+  const toggleFavorite = (id: number) => {
+    setFavorites(prev => {
+      const isFav = prev.includes(id);
+      showToast(isFav ? 'Удалено из избранного' : 'Добавлено в избранное', 'info');
+      return isFav ? prev.filter(fId => fId !== id) : [...prev, id];
+    });
+  };
+
+  const handleCheckout = () => {
+    if (!isLoggedIn) {
+      setIsCartOpen(false);
+      setIsAuthOpen(true);
+      return;
+    }
+    if (!city) {
+      setIsCityModalOpen(true);
+      return;
+    }
+    setIsPaymentOpen(true);
+  };
+
+  const handlePaymentComplete = () => {
+    const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    
+    const today = new Date();
+    const deliveryDateObj = new Date(today);
+    deliveryDateObj.setDate(today.getDate() + (city === 'Москва' ? 1 : 4));
+    const deliveryDateStr = deliveryDateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+
+    const newOrder = {
+      id: Math.floor(Math.random() * 1000000),
+      date: today.toLocaleDateString('ru-RU'),
+      items: [...cart],
+      total,
+      status: 'В пути',
+      city,
+      deliveryDate: deliveryDateStr,
+      trackingSteps: [
+        { title: 'Заказ оформлен', description: 'Оплата прошла успешно', date: today.toLocaleDateString('ru-RU') + ' ' + today.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }), completed: true },
+        { title: 'В пути', description: 'Сортировочный центр, г. Москва', date: 'Ожидается отправка в город назначения', completed: true },
+        { title: 'Прибыл в город назначения', description: `Сортировочный центр, г. ${city || 'Ваш город'}`, completed: false },
+        { title: 'Готов к выдаче / У курьера', description: 'Ожидайте уведомления', completed: false }
+      ]
+    };
+    setOrders([newOrder, ...orders]);
+    setCart([]);
+    setIsPaymentOpen(false);
+    setIsCartOpen(false);
+    showToast('Заказ успешно оформлен!');
+  };
+
+  const filteredProducts = PRODUCTS.filter(product => {
+    const matchesCategory = activeCategory === 'Все' || product.category === activeCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <div className="min-h-screen bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] font-sans selection:bg-black/10 dark:selection:bg-white/20 relative overflow-hidden">
+      <ToastContainer toasts={toasts} />
+      {/* Ambient Background Glows */}
+      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-none bg-black/5 dark:bg-white/5 blur-[120px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-none bg-black/5 dark:bg-white/5 blur-[120px] pointer-events-none z-0" />
+      <DynamicIsland 
+        city={city}
+        onOpenCity={() => setIsCityModalOpen(true)}
+        onOpenCart={() => setIsCartOpen(true)} 
+        onOpenAuth={() => setIsAuthOpen(true)} 
+        onOpenProfile={() => setIsProfileOpen(true)}
+        isLoggedIn={isLoggedIn}
+        cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+        onNavigate={setActivePage}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+      
+      {activePage === 'home' ? (
+        <main className="pb-12 pt-28">
+          <section className="px-4 max-w-7xl mx-auto text-center mb-12 relative z-10">
+            <div className="relative rounded-none overflow-hidden aspect-[3/4] sm:aspect-[4/3] md:aspect-[21/9] bg-zinc-200 dark:bg-zinc-900 shadow-2xl group border border-black/10 dark:border-white/10">
+              <img src={HERO_SLIDES[0].image} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 grayscale" referrerPolicy="no-referrer" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col items-center justify-end p-6 sm:p-8 md:p-16">
+                <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter text-white mb-3 sm:mb-4 text-center">{HERO_SLIDES[0].title}</motion.h1>
+                <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/90 text-base sm:text-lg md:text-xl max-w-lg text-center mb-6 sm:mb-8 font-bold uppercase tracking-wider">{HERO_SLIDES[0].subtitle}</motion.p>
+                <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="px-6 py-3 sm:px-8 sm:py-4 bg-white text-black rounded-none font-black uppercase tracking-tighter text-base sm:text-lg hover:bg-zinc-200 transition-colors shadow-lg">
+                  Смотреть коллекцию
+                </motion.button>
+              </div>
+            </div>
+          </section>
+
+          <section className="py-4 sticky top-0 z-30 bg-[#F5F5F7]/80 dark:bg-black/80 backdrop-blur-2xl border-b border-black/10 dark:border-white/10">
+            <div className="max-w-7xl mx-auto px-4 flex gap-2 overflow-x-auto scrollbar-hide snap-x items-center">
+              {CATEGORIES.map(cat => (
+                <button 
+                  key={cat.id} 
+                  onClick={() => setActiveCategory(cat.name)}
+                  className={cn("px-6 py-2.5 rounded-none text-sm font-black uppercase tracking-tighter whitespace-nowrap snap-start transition-colors border border-black/10 dark:border-white/10", activeCategory === cat.name ? "bg-black text-white dark:bg-white dark:text-black shadow-md" : "bg-white dark:bg-[#1C1C1E] hover:bg-zinc-100 dark:hover:bg-zinc-800")}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="py-12 max-w-7xl mx-auto px-4 relative z-10">
+            <div className="flex justify-between items-end mb-8 border-b border-black/10 dark:border-white/10 pb-4">
+              <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">Тренды сезона</h2>
+              <button className="text-[#86868B] font-bold uppercase tracking-wider hover:text-black dark:hover:text-white transition-colors flex items-center gap-1 text-sm">Все товары <ChevronRight size={16} /></button>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+              {filteredProducts.length > 0 ? filteredProducts.map(product => (
+                <motion.div key={product.id} className="group cursor-pointer bg-white dark:bg-[#1C1C1E] rounded-none p-3 sm:p-4 shadow-sm hover:shadow-xl transition-shadow border border-black/10 dark:border-white/10 relative overflow-hidden flex flex-col" onClick={() => setSelectedProduct(product)} whileHover={{ y: -4 }}>
+                  <div className="relative aspect-[4/5] rounded-none overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-3 sm:mb-5 shrink-0 border border-black/5 dark:border-white/5">
+                    <img src={product.image} className="absolute inset-0 w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-700 grayscale" referrerPolicy="no-referrer" />
+                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1 sm:gap-2">
+                      {product.isNew && <span className="bg-black text-white text-[8px] sm:text-[10px] font-black px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-none uppercase tracking-wider border border-white/20">New</span>}
+                      {product.oldPrice && <span className="bg-red-500 text-white text-[8px] sm:text-[10px] font-black px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-none uppercase tracking-wider border border-white/20">-{Math.round((1 - product.price / product.oldPrice) * 100)}%</span>}
+                    </div>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
+                      className="absolute top-2 sm:top-3 right-2 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 rounded-none bg-white dark:bg-black flex items-center justify-center shadow-sm opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity border border-black/10 dark:border-white/10"
+                    >
+                      <Heart size={14} className={cn("sm:w-[18px] sm:h-[18px]", favorites.includes(product.id) ? "fill-red-500 text-red-500" : "text-black dark:text-white")} />
+                    </button>
+                  </div>
+                  <div className="px-1 sm:px-2 pb-1 sm:pb-2 relative z-10 flex-1 flex flex-col">
+                    <div className="flex items-center gap-1 mb-1 sm:mb-2">
+                      <Star size={10} className="fill-black dark:fill-white text-black dark:text-white sm:w-3 sm:h-3" />
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">{product.rating}</span>
+                      <span className="text-[10px] sm:text-xs text-[#86868B] font-bold uppercase tracking-wider">({product.reviews})</span>
+                    </div>
+                    <h3 className="font-black uppercase tracking-tighter text-sm sm:text-lg mb-1 line-clamp-2 sm:line-clamp-1 group-hover:text-zinc-500 transition-colors">{product.name}</h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2 mb-3 sm:mb-4 mt-auto">
+                      <span className="font-black uppercase tracking-tighter text-base sm:text-xl">{product.price.toLocaleString()} ₽</span>
+                      {product.oldPrice && <span className="text-[10px] sm:text-sm text-[#86868B] line-through font-bold uppercase tracking-wider">{product.oldPrice.toLocaleString()} ₽</span>}
+                    </div>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                      className="w-full py-2 sm:py-3 rounded-none bg-black dark:bg-white text-white dark:text-black text-xs sm:text-sm font-black uppercase tracking-tighter hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-1.5 sm:gap-2 mt-auto"
+                    >
+                      <ShoppingBag size={14} className="sm:w-4 sm:h-4" /> <span className="hidden sm:inline">В корзину</span><span className="sm:hidden">Купить</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )) : (
+                <div className="col-span-full py-20 text-center text-[#86868B]">
+                  <Search size={48} className="mx-auto mb-4 opacity-20" />
+                  <p className="text-xl font-black uppercase tracking-tighter">Ничего не найдено</p>
+                  <p className="mt-2 font-bold uppercase tracking-wider text-sm">Попробуйте изменить запрос или категорию</p>
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
+      ) : (
+        <InfoPage 
+          title={PAGES_CONTENT[activePage]?.title} 
+          content={PAGES_CONTENT[activePage]?.content} 
+          onBack={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActivePage('home'); }} 
+        />
+      )}
+
+      <Footer onNavigate={setActivePage} />
+
+      <CityModal isOpen={isCityModalOpen} onClose={() => setIsCityModalOpen(false)} currentCity={city} onSelectCity={setCity} />
+      
+      <CartModal 
+        isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} 
+        cart={cart} updateQuantity={updateCartQuantity} removeItem={removeFromCart} 
+        city={city} onCheckout={handleCheckout} 
+      />
+      
+      <PaymentModal 
+        isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} 
+        total={cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)} 
+        onComplete={handlePaymentComplete} 
+      />
+
+      <ProductModal 
+        product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} 
+        onAddToCart={handleAddToCart} isFavorite={selectedProduct ? favorites.includes(selectedProduct.id) : false}
+        onToggleFavorite={toggleFavorite}
+        city={city}
+        onCheckout={handleCheckout}
+        showToast={showToast}
+      />
+      
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} onLogin={() => { setIsLoggedIn(true); setIsAuthOpen(false); }} />
+      
+      <AnimatePresence>
+        {isProfileOpen && <ProfileView orders={orders} favorites={favorites} onLogout={() => { setIsLoggedIn(false); setIsProfileOpen(false); }} onClose={() => setIsProfileOpen(false)} onRemoveFavorite={toggleFavorite} showToast={showToast} />}
+      </AnimatePresence>
+    </div>
+  );
+}
