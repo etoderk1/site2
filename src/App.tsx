@@ -1,119 +1,13 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HYPE — Streetwear Store</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Space Grotesk"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-                    },
-                },
-            },
-        }
-    </script>
-    
-    <!-- React & Dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/clsx@2.1.1/dist/clsx.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/tailwind-merge@2.3.0/dist/bundle-client.umd.js" crossorigin="anonymous"></script>
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Search, ShoppingBag, User, X, Heart, ChevronRight, CreditCard, 
+  Apple, Star, TrendingUp, LogOut, Package, Settings, Bell, Shield, 
+  MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { cn } from './lib/utils';
 
-    <style>
-        @layer base {
-            body { @apply font-sans; }
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        #error-display {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #fff;
-            color: #ef4444;
-            padding: 2rem;
-            z-index: 9999;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            overflow: auto;
-            line-height: 1.5;
-        }
-        #error-display h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: -0.025em; color: #000; }
-        #error-display pre { background: #f8f8f8; padding: 1rem; border: 1px solid #eee; border-radius: 0; font-size: 0.875rem; white-space: pre-wrap; word-break: break-all; }
-    </style>
-</head>
-<body class="bg-[#F2F2F7] dark:bg-black text-[#1D1D1F] dark:text-white transition-colors duration-500">
-    <div id="error-display"></div>
-    <div id="root">
-        <div class="h-screen w-screen flex items-center justify-center font-black uppercase tracking-tighter text-2xl animate-pulse">
-            HYPE IS LOADING...
-        </div>
-    </div>
-
-    <script>
-        // Глобальный перехватчик ошибок
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            const display = document.getElementById('error-display');
-            display.style.display = 'block';
-            let content = '<h1>Runtime Error</h1>';
-            content += '<pre>' + msg + '\n\nLocation: ' + url + ':' + lineNo + ':' + columnNo;
-            if (error && error.stack) {
-                content += '\n\nStack Trace:\n' + error.stack;
-            }
-            content += '</pre>';
-            
-            if (msg.includes('Script error')) {
-                content += '<div style="margin-top: 1rem; color: #666; font-size: 0.875rem;"><b>Note:</b> This is a cross-origin error. Check the browser console (F12) for the actual error message.</div>';
-            }
-            
-            display.innerHTML = content;
-            return false;
-        };
-    </script>
-
-    <script type="text/babel" data-presets="react,typescript,env">
-        const { useState, useRef, useEffect, useMemo, useCallback, StrictMode } = React;
-        
-        // Библиотеки из глобального контекста
-        const motion = window.Motion?.motion || window.FramerMotion?.motion || {};
-        const AnimatePresence = window.Motion?.AnimatePresence || window.FramerMotion?.AnimatePresence;
-        
-        const LucideIcons = window.LucideReact || {};
-        const { 
-            Search, ShoppingBag, User, X, Heart, ChevronRight, CreditCard, 
-            Apple, Star, TrendingUp, LogOut, Package, Settings, Bell, Shield, 
-            MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2,
-            ChevronLeft, ExternalLink, Filter, Menu, Plus, Minus, Check
-        } = LucideIcons;
-
-        // Утилита cn
-        const cn = (...inputs) => {
-            const twMerge = window.tailwindMerge?.twMerge;
-            const clsx = window.clsx?.clsx || window.clsx;
-            if (twMerge && clsx) {
-                return twMerge(clsx(inputs));
-            }
-            return inputs.filter(Boolean).join(' ');
-        };
-
-        // --- ПРИЛОЖЕНИЕ ---
-        const CITIES = [
+const CITIES = [
   'Абакан', 'Альметьевск', 'Ангарск', 'Арзамас', 'Армавир', 'Артём', 'Архангельск', 'Астрахань', 'Ачинск',
   'Балаково', 'Балашиха', 'Барнаул', 'Батайск', 'Белгород', 'Бердск', 'Березники', 'Бийск', 'Благовещенск', 'Братск', 'Брянск',
   'Великий Новгород', 'Владивосток', 'Владикавказ', 'Владимир', 'Волгоград', 'Волгодонск', 'Волжский', 'Вологда', 'Воронеж',
@@ -1455,7 +1349,7 @@ const PAGES_CONTENT: Record<string, { title: string, content: React.ReactNode }>
   }
 };
 
-function App() {
+export default function App() {
   const [activePage, setActivePage] = useState('home');
   const [city, setCity] = useState<string | null>(null);
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
@@ -1717,21 +1611,3 @@ function App() {
     </div>
   );
 }
-
-        // Инициализация
-        try {
-            const root = ReactDOM.createRoot(document.getElementById('root'));
-            root.render(
-                <StrictMode>
-                    <App />
-                </StrictMode>
-            );
-        } catch (err) {
-            console.error("Initialization failed:", err);
-            const display = document.getElementById('error-display');
-            display.style.display = 'block';
-            display.innerHTML = '<h1>Initialization Error</h1><pre>' + err.stack + '</pre>';
-        }
-    </script>
-</body>
-</html>

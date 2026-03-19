@@ -43,9 +43,9 @@ const html = `<!DOCTYPE html>
         }
     </script>
     
-    <!-- React & Dependencies (Using crossorigin to avoid "Script error") -->
-    <script src="https://unpkg.com/react@19/umd/react.production.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/react-dom@19/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+    <!-- React & Dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin="anonymous"></script>
@@ -64,69 +64,76 @@ const html = `<!DOCTYPE html>
             display: none;
             position: fixed;
             inset: 0;
-            background: white;
-            color: red;
-            padding: 20px;
+            background: #fff;
+            color: #ef4444;
+            padding: 2rem;
             z-index: 9999;
-            font-family: monospace;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             overflow: auto;
+            line-height: 1.5;
         }
+        #error-display h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: -0.025em; color: #000; }
+        #error-display pre { background: #f8f8f8; padding: 1rem; border: 1px solid #eee; border-radius: 0; font-size: 0.875rem; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body class="bg-[#F2F2F7] dark:bg-black text-[#1D1D1F] dark:text-white transition-colors duration-500">
     <div id="error-display"></div>
     <div id="root">
-        <div class="h-screen w-screen flex items-center justify-center font-black uppercase tracking-tighter text-2xl">
-            Загрузка HYPE...
+        <div class="h-screen w-screen flex items-center justify-center font-black uppercase tracking-tighter text-2xl animate-pulse">
+            HYPE IS LOADING...
         </div>
     </div>
 
     <script>
-        // Обработка ошибок
+        // Глобальный перехватчик ошибок
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             const display = document.getElementById('error-display');
             display.style.display = 'block';
-            let errorMsg = '<h1>Ошибка выполнения:</h1><pre>' + msg + '\\nat ' + url + ':' + lineNo + ':' + columnNo;
+            let content = '<h1>Runtime Error</h1>';
+            content += '<pre>' + msg + '\\n\\nLocation: ' + url + ':' + lineNo + ':' + columnNo;
             if (error && error.stack) {
-                errorMsg += '\\n\\nStack:\\n' + error.stack;
+                content += '\\n\\nStack Trace:\\n' + error.stack;
             }
-            errorMsg += '</pre>';
+            content += '</pre>';
             
-            if (msg.indexOf('Script error') > -1) {
-                errorMsg += '<p style="color: black"><b>Подсказка:</b> Это внешняя ошибка (CORS). Проверьте консоль браузера (F12) для деталей.</p>';
+            if (msg.includes('Script error')) {
+                content += '<div style="margin-top: 1rem; color: #666; font-size: 0.875rem;"><b>Note:</b> This is a cross-origin error. Check the browser console (F12) for the actual error message.</div>';
             }
             
-            display.innerHTML = errorMsg;
+            display.innerHTML = content;
             return false;
         };
     </script>
 
-    <script type="text/babel" data-presets="react">
+    <script type="text/babel" data-presets="react,typescript,env">
         const { useState, useRef, useEffect, useMemo, useCallback, StrictMode } = React;
         
-        // Глобальные переменные для библиотек
-        const motion = window.Motion?.motion || window.FramerMotion?.motion;
+        // Библиотеки из глобального контекста
+        const motion = window.Motion?.motion || window.FramerMotion?.motion || {};
         const AnimatePresence = window.Motion?.AnimatePresence || window.FramerMotion?.AnimatePresence;
         
         const LucideIcons = window.LucideReact || {};
         const { 
             Search, ShoppingBag, User, X, Heart, ChevronRight, CreditCard, 
             Apple, Star, TrendingUp, LogOut, Package, Settings, Bell, Shield, 
-            MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2
+            MapPin, CheckCircle, Loader2, Trash2, ArrowLeft, Info, Tag, Share2,
+            ChevronLeft, ExternalLink, Filter, Menu, Plus, Minus, Check
         } = LucideIcons;
 
-        // Эмуляция функции cn
+        // Утилита cn
         const cn = (...inputs) => {
-            if (typeof tailwindMerge !== 'undefined' && typeof clsx !== 'undefined') {
-                return tailwindMerge.twMerge(clsx.clsx(inputs));
+            const twMerge = window.tailwindMerge?.twMerge;
+            const clsx = window.clsx?.clsx || window.clsx;
+            if (twMerge && clsx) {
+                return twMerge(clsx(inputs));
             }
             return inputs.filter(Boolean).join(' ');
         };
 
-        // --- APP LOGIC ---
+        // --- ПРИЛОЖЕНИЕ ---
         ${cleanup(appCode)}
 
-        // Рендеринг
+        // Инициализация
         try {
             const root = ReactDOM.createRoot(document.getElementById('root'));
             root.render(
@@ -134,10 +141,11 @@ const html = `<!DOCTYPE html>
                     <App />
                 </StrictMode>
             );
-        } catch (e) {
-            console.error("Render error:", e);
-            document.getElementById('error-display').style.display = 'block';
-            document.getElementById('error-display').innerHTML = '<h1>Ошибка рендеринга:</h1><pre>' + e.stack + '</pre>';
+        } catch (err) {
+            console.error("Initialization failed:", err);
+            const display = document.getElementById('error-display');
+            display.style.display = 'block';
+            display.innerHTML = '<h1>Initialization Error</h1><pre>' + err.stack + '</pre>';
         }
     </script>
 </body>
